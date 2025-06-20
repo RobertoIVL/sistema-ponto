@@ -34,11 +34,23 @@ db.serialize(() => {
     FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
   )`);
 
+  // Tabela de escalas de trabalho
+  db.run(`CREATE TABLE IF NOT EXISTS escalas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    usuario_id INTEGER,
+    tipo TEXT,
+    carga_horaria_semanal INTEGER,
+    dias_trabalho TEXT,
+    ativo BOOLEAN DEFAULT 1,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
+  )`);
+
   // Criar usuário admin padrão
   const bcrypt = require('bcryptjs');
   const senhaHash = bcrypt.hashSync('admin123', 10);
   
-  db.run(`INSERT OR IGNORE INTO usuarios (nome, email, senha, cargo) 
+  db.run(`INSERT OR IGNORE INTO usuarios (nome, email, senha, cargo)
           VALUES ('Administrador', 'admin@chitko.com', ?, 'Admin')`, [senhaHash]);
 });
 

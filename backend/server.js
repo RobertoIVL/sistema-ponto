@@ -10,6 +10,7 @@ require('./database/database');
 const authRoutes = require('./routes/auth');
 const usuarioRoutes = require('./routes/usuarios');
 const pontoRoutes = require('./routes/pontos');
+const escalaRoutes = require('./routes/escalas');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,6 +24,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 app.use('/api/auth', authRoutes);
 app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/pontos', pontoRoutes);
+app.use('/api/escalas', escalaRoutes);
 
 // Servir frontend
 app.get('*', (req, res) => {

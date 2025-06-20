@@ -39,6 +39,29 @@ class Usuario {
   static async validarSenha(senhaTexto, senhaHash) {
     return await bcrypt.compare(senhaTexto, senhaHash);
   }
+
+  static async atualizar(id, dadosUsuario) {
+    const { nome, email, cargo, departamento, ativo } = dadosUsuario;
+    return new Promise((resolve, reject) => {
+      const sql = `UPDATE usuarios
+                   SET nome = ?, email = ?, cargo = ?, departamento = ?, ativo = ?
+                   WHERE id = ?`;
+      db.run(sql, [nome, email, cargo, departamento, ativo, id], function(err) {
+        if (err) reject(err);
+        else resolve({ id, ...dadosUsuario });
+      });
+    });
+  }
+
+  static async deletar(id) {
+    return new Promise((resolve, reject) => {
+      const sql = `DELETE FROM usuarios WHERE id = ?`;
+      db.run(sql, [id], function(err) {
+        if (err) reject(err);
+        else resolve({ message: 'Usuário deletado com sucesso' });
+      });
+    });
+  }
 }
 
 module.exports = Usuario;
