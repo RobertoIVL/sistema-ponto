@@ -312,33 +312,43 @@ function checkPasswordStrength() {
 }
 
 // Salvar escala
-function saveSchedule() {
-    const name = document.getElementById('scheduleName').value;
-    const userId = parseInt(document.getElementById('scheduleUser').value);
-    const type = document.getElementById('scheduleType').value;
-    const weeklyHours = parseInt(document.getElementById('weeklyHours').value);
+async function saveSchedule() {
+    const nome = document.getElementById('scheduleName').value;
+    const usuario_id = parseInt(document.getElementById('scheduleUser').value);
+    const tipo = document.getElementById('scheduleType').value;
+    const carga_horaria_semanal = parseInt(document.getElementById('weeklyHours').value);
 
-    if (!name || !userId || !type || !weeklyHours) {
-        alert('Por favor, preencha todos os campos obrigatórios.');
+    if (!nome || !usuario_id || !tipo || !carga_horaria_semanal) {
+        mostrarNotificacao('Por favor, preencha todos os campos obrigatórios.', 'warning');
         return;
     }
 
-    const schedule = {
-        id: schedules.length + 1,
-        name: name,
-        userId: userId,
-        type: type,
-        weeklyHours: weeklyHours,
-        status: 'ativo',
-        days: getScheduleDays()
+    const novaEscala = {
+        nome,
+        usuario_id,
+        tipo,
+        carga_horaria_semanal,
+        dias_trabalho: getScheduleDays()
     };
 
-    schedules.push(schedule);
-    loadSchedules();
-    updateStats();
-    clearScheduleForm();
-    
-    alert(`Escala ${name} salva com sucesso!`);
+    try {
+        const response = await fetchAuth(`${API_BASE}/escalas`, {
+            method: 'POST',
+            body: JSON.stringify(novaEscala)
+        });
+
+        if (!response.ok) {
+            const erro = await response.json();
+            throw new Error(erro.erro || 'Erro ao criar escala');
+        }
+
+        await loadSchedules();
+        clearScheduleForm();
+        mostrarNotificacao(`Escala ${nome} salva com sucesso!`, 'success');
+    } catch (error) {
+        console.error('Erro ao salvar escala:', error);
+        mostrarNotificacao(error.message, 'error');
+    }
 }
 
 // Obter dados dos dias da escala
@@ -652,12 +662,24 @@ function editSchedule(scheduleId) {
     alert(`Editando escala ID: ${scheduleId} (funcionalidade seria implementada aqui)`);
 }
 
-function deleteSchedule(scheduleId) {
+async function deleteSchedule(scheduleId) {
     if (confirm('Tem certeza que deseja excluir esta escala?')) {
-        schedules = schedules.filter(s => s.id !== scheduleId);
-        loadSchedules();
-        updateStats();
-        alert('Escala excluída com sucesso!');
+        try {
+            const response = await fetchAuth(`${API_BASE}/escalas/${scheduleId}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                const erro = await response.json();
+                throw new Error(erro.erro || 'Erro ao deletar escala');
+            }
+
+            await loadSchedules();
+            mostrarNotificacao('Escala excluída com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao deletar escala:', error);
+            mostrarNotificacao(error.message, 'error');
+        }
     }
 }
 
