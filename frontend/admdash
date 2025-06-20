@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Sistema de Ponto</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem 1rem;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar h2 {
+            color: white;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .nav-item {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+        
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .table th, .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <nav class="sidebar">
+            <h2>Admin Panel</h2>
+            <a href="#" class="nav-item active" onclick="showSection('dashboard')">Dashboard</a>
+            <a href="#" class="nav-item" onclick="showSection('funcionarios')">Funcionários</a>
+            <a href="#" class="nav-item" onclick="showSection('pontos')">Registros de Ponto</a>
+            <a href="#" class="nav-item" onclick="showSection('relatorios')">Relatórios</a>
+        </nav>
+        
+        <main class="main-content">
+            <!-- Dashboard Overview -->
+            <section id="dashboard-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-funcionarios">-</div>
+                        <div>Total Funcionários</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="pontos-hoje">-</div>
+                        <div>Pontos Hoje</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="funcionarios-ativos">-</div>
+                        <div>Funcionários Ativos</div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Funcionários -->
+            <section id="funcionarios-section" class="hidden">
+                <div class="card">
+                    <h3>Gerenciar Funcionários</h3>
+                    <div style="margin: 1rem 0;">
+                        <button class="btn" onclick="showAddFuncionarioForm()">Adicionar Funcionário</button>
+                    </div>
+                    
+                    <div id="add-funcionario-form" class="hidden">
+                        <h4>Novo Funcionário</h4>
+                        <form onsubmit="addFuncionario(event)">
+                            <div class="form-group">
+                                <label>Nome:</label>
+                                <input type="text" id="nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email:</label>
+                                <input type="email" id="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Cargo:</label>
+                                <input type="text" id="cargo" required>
+                            </div>
+                            <button type="submit" class="btn">Salvar</button>
+                            <button type="button" class="btn" onclick="hideAddFuncionarioForm()">Cancelar</button>
+                        </form>
+                    </div>
+                    
+                    <div id="funcionarios-loading" class="loading">Carregando funcionários...</div>
+                    <table class="table" id="funcionarios-table" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Cargo</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="funcionarios-body">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Registros de Ponto -->
+            <section id="pontos-section" class="hidden">
+                <div class="card">
+                    <h3>Registros de Ponto</h3>
+                    <div id="pontos-loading" class="loading">Carregando registros...</div>
+                    <table class="table" id="pontos-table" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Data/Hora</th>
+                                <th>Funcionário</th>
+                                <th>Tipo</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pontos-body">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Relatórios -->
+            <section id="relatorios-section" class="hidden">
+                <div class="card">
+                    <h3>Relatórios</h3>
+                    <p>Funcionalidade de relatórios em desenvolvimento...</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        
+        // Estado global
+        let funcionarios = [];
+        let pontos = [];
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardData();
+        });
+        
+        // Navegação
+        function showSection(sectionName) {
+            // Esconder todas as seções
+            document.querySelectorAll('section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Remover classe active de todos os nav-items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Mostrar seção selecionada
+            document.getElementById(sectionName + '-section').classList.remove('hidden');
+            
+            // Adicionar classe active ao nav-item clicado
+            event.target.classList.add('active');
+            
+            // Carregar dados específicos da seção
+            switch(sectionName) {
+                case 'funcionarios':
+                    loadFuncionarios();
+                    break;
+                case 'pontos':
+                    loadPontos();
+                    break;
+            }
+        }
+        
+        // Carregar dados do dashboard
+        async function loadDashboardData() {
+            try {
+                const funcionariosData = await fetch(`${API_BASE}/funcionarios`).then(r => r.json());
+                const pontosData = await fetch(`${API_BASE}/pontos`).then(r => r.json());
+                
+                document.getElementById('total-funcionarios').textContent = funcionariosData.length;
+                
+                // Contar pontos de hoje
+                const hoje = new Date().toISOString().split('T')[0];
+                const pontosHoje = pontosData.filter(ponto => 
+                    ponto.data_hora.startsWith(hoje)
+                ).length;
+                document.getElementById('pontos-hoje').textContent = pontosHoje;
+                
+                // Funcionários ativos (simplificado)
+                document.getElementById('funcionarios-ativos').textContent = funcionariosData.length;
+                
+            } catch (error) {
+                console.error('Erro ao carregar dados do dashboard:', error);
+            }
+        }
+        
+        // Carregar funcionários
+        async function loadFuncionarios() {
+            const loadingDiv = document.getElementById('funcionarios-loading');
+            const tableDiv = document.getElementById('funcionarios-table');
+            const tbody = document.getElementById('funcionarios-body');
+            
+            loadingDiv.style.display = 'block';
+            tableDiv.style.display = 'none';
+            
+            try {
+                const response = await fetch(`${API_BASE}/funcionarios`);
+                funcionarios = await response.json();
+                
+                tbody.innerHTML = '';
+                funcionarios.forEach(funcionario => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${funcionario.id}</td>
+                        <td>${funcionario.nome}</td>
+                        <td>${funcionario.email}</td>
+                        <td>${funcionario.cargo}</td>
+                        <td>
+                            <button class="btn" onclick="editFuncionario(${funcionario.id})">Editar</button>
+                        </td>
+                    `;
+                });
+                
+                loadingDiv.style.display = 'none';
+                tableDiv.style.display = 'table';
+                
+            } catch (error) {
+                console.error('Erro ao carregar funcionários:', error);
+                loadingDiv.innerHTML = 'Erro ao carregar funcionários';
+            }
+        }
+        
+        // Carregar pontos
+        async function loadPontos() {
+            const loadingDiv = document.getElementById('pontos-loading');
+            const tableDiv = document.getElementById('pontos-table');
+            const tbody = document.getElementById('pontos-body');
+            
+            loadingDiv.style.display = 'block';
+            tableDiv.style.display = 'none';
+            
+            try {
+                const response = await fetch(`${API_BASE}/pontos`);
+                pontos = await response.json();
+                
+                tbody.innerHTML = '';
+                pontos.forEach(ponto => {
+                    const row = tbody.insertRow();
+                    const dataHora = new Date(ponto.data_hora).toLocaleString('pt-BR');
+                    row.innerHTML = `
+                        <td>${dataHora}</td>
+                        <td>${ponto.funcionario_nome}</td>
+                        <td>${ponto.tipo}</td>
+                        <td><span style="color: green;">✓</span> Registrado</td>
+                    `;
+                });
+                
+                loadingDiv.style.display = 'none';
+                tableDiv.style.display = 'table';
+                
+            } catch (error) {
+                console.error('Erro ao carregar pontos:', error);
+                loadingDiv.innerHTML = 'Erro ao carregar registros';
+            }
+        }
+        
+        // Mostrar formulário de adicionar funcionário
+        function showAddFuncionarioForm() {
+            document.getElementById('add-funcionario-form').classList.remove('hidden');
+        }
+        
+        // Esconder formulário de adicionar funcionário
+        function hideAddFuncionarioForm() {
+            document.getElementById('add-funcionario-form').classList.add('hidden');
+            document.getElementById('nome').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('cargo').value = '';
+        }
+        
+        // Adicionar funcionário
+        async function addFuncionario(event) {
+            event.preventDefault();
+            
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const cargo = document.getElementById('cargo').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/funcionarios`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nome, email, cargo })
+                });
+                
+                if (response.ok) {
+                    alert('Funcionário adicionado com sucesso!');
+                    hideAddFuncionarioForm();
+                    loadFuncionarios();
+                    loadDashboardData();
+                } else {
+                    alert('Erro ao adicionar funcionário');
+                }
+            } catch (error) {
+                console.error('Erro ao adicionar funcionário:', error);
+                alert('Erro ao adicionar funcionário');
+            }
+        }
+        
+        // Editar funcionário (placeholder)
+        function editFuncionario(id) {
+            alert(`Editar funcionário ID: ${id} (funcionalidade em desenvolvimento)`);
+        }
+    </script>
+</body>
+</html>
