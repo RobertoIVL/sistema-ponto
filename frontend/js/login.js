@@ -51,6 +51,14 @@ function fazerLogout() {
 function mostrarLogin() {
     document.getElementById('login-container').style.display = 'block';
     document.getElementById('dashboard').style.display = 'none';
+// Esconder o link do Painel Administrativo ao mostrar o formulário de login
+    const links = document.querySelectorAll('nav a');
+    for (const link of links) {
+        if (link.href.includes('admin_dashboard.html')) {
+            link.style.display = 'none';
+            break;
+        }
+    }
 }
 
 function mostrarDashboard() {
@@ -59,6 +67,14 @@ function mostrarDashboard() {
     
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
     document.getElementById('usuario-nome').textContent = usuario.nome || 'Usuário';
+// Mostrar Painel Administrativo apenas para admin@chitko.com
+    const links = document.querySelectorAll('nav a');
+    for (const link of links) {
+        if (link.href.includes('admin_dashboard.html')) {
+            link.style.display = usuario.email === 'admin@chitko.com' ? 'inline' : 'none';
+            break;
+        }
+    }
     
     iniciarDashboard();
 }

@@ -370,16 +370,16 @@ function getScheduleDays() {
 // Aplicar modelo de escala
 function applyTemplate() {
     const templates = {
-        'comercial': { entrada: '08:00', saida: '17:00' },
+        'entrada': { entrada: '08:30', saida: '18:00' },
         'industrial': { entrada: '07:00', saida: '16:00' },
         'noturno': { entrada: '22:00', saida: '06:00' }
     };
 
-    const template = prompt('Escolha um modelo:\n1 - Comercial (8h-17h)\n2 - Industrial (7h-16h)\n3 - Noturno (22h-6h)');
+    const template = prompt('Escolha um modelo:\n1 - entrada (8h30-18h)\n2 - Industrial (7h-16h)\n3 - Noturno (22h-6h)');
     
     let selectedTemplate;
     switch(template) {
-        case '1': selectedTemplate = templates.comercial; break;
+        case '1': selectedTemplate = templates.entrada; break;
         case '2': selectedTemplate = templates.industrial; break;
         case '3': selectedTemplate = templates.noturno; break;
         default: return;
