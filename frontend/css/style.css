@@ -60,6 +60,7 @@ button {
     background: #c82333;
 }
 
+<<<<<<< HEAD
 #admin-link {
     display: inline-block;
     padding: 0.5rem 1rem;
@@ -75,6 +76,8 @@ button {
     background: #218838;
 }
 
+=======
+>>>>>>> de25618576f54d7bfc962579ce8775691f7f4277
 /* Login */
 .login-container {
     background: white;
